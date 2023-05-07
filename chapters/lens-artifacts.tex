@@ -2,17 +2,19 @@
 \chapter{Lens artifacts}
 \label{ch:Content2}
 %% ==============
-\dots
+Lens artifacts are added 
 %% ===========================
 \section{Chromatic aberration}
 \label{ch:Content2:sec:Section1}
 %% ===========================
-
-\dots
+The rendered frame is split into it's color channels.
+Each image is distorted radially by a specific amount.
 
 %% ===========================
 \section{Lens flare}
 \label{ch:Content2:sec:Section2}
 %% ===========================
-
-\dots
+Typically added to indicate high brightness to viewer as most monitors do not support a high enough dynamic range to display bright scenes correctly.
+Lens flare is a fixed transparent texture that is blended with computed frame.
+The image position of a light source is mirrored at the middle of the frame and the texture is placed there.
+The size and opaqueness of the texture increase as they move toward the center of the frame.

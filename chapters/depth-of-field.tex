@@ -1,5 +1,29 @@
 \chapter{Depth-of-Field}
 
 \section{Accumulation buffers}
+The image is rendered multiple times.
+Each time shifting the virtual camera to simulate the circle of confusion (CoC).
+The image around the point on which the camera is pointed moves very little thus creating very little blur.
+The image far away from the focus point differ wildly and therefore are very blurred.
+Workload is increased n-fold. Converges to correct answer
+
+\section{2.5 dimensional rendering}
+Render background blurred.
+Render objects in focus.
+Render foreground blurred.
+
+Object can't go between layers.
+background and foreground are uniformly blurred, without variation with distance.
 
 \section{Backwards depth mapping}
+z-buffer is generated with image.
+
+Simple form: Each pixel is blurred according to distance from focus plane.
+But: Generates unrealistic result at the boundaries of object with far background.
+
+% Depth-of-Field Rendering by Pyramidal Image Processing
+% https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1467-8659.2007.01088.x
+Complex form: Split image into n sub-images, culling pixels not in same "plane".
+Culled pixels are disoccluded with chosen method and each sub-image is blurred according to distance to focus distance.
+Images are combined to create final image.
+

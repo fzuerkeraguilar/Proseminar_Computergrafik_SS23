@@ -2,9 +2,55 @@
 \label{ch:background}
 
 \section{Lens systems}
+The simplest camera model is the pinhole camera.
+An infinitesimal small hole is punched into an opaque material and creates the aperture.
+An image is then taken from an image plane places at distance $d$ parallel to the aperture.
+This camera model can be implemented easily in computer graphics software by modeling the aperture as a singe point in space.
+The incoming light is then approximated by a ray emanating at an object or light source and crossing the aperture point.
+This ray then intersects the image plane of the virtual camera at a single point and a color value is recorded.
+This procedure is typically reversed for actual graphics pipelines with rays coming emanating at predetermined points on the image plane and crossing the aperture point.
 
-\dots
+If the aperture of a pinhole camera is assumed to be an infinitesimally small hole i.e. a point in space and light is approximated by straight rays, then the pinhole camera represents the ideal perspective camera.
+Each point on the image plane only receives light from exactly one point and is therefore perfectly in focus.
+The camera can therefore be described as a coordinate transformation $x_c, y_c, z_c \mapsto x, y$.
+The resulting image coordinates $x, y$ can be derived from the equations:
+\begin{align}
+    \frac{x_c}{x} = -\frac{z_c}{d} \\
+    \frac{y_c}{y} = -\frac{z_c}{d}
+\end{align}
+This results in the following projection:
+\begin{align}
+    \begin{pmatrix}
+    x_c \\
+    y_c \\
+    z_c
+\end{pmatrix} 
+\mapsto
+\begin{pmatrix}
+    x \\
+    y
+\end{pmatrix}
+= -\frac{d}{z_c}
+\begin{pmatrix}
+    x_c \\
+    y_c
+\end{pmatrix}
+\end{align}
+The negative sign represents the flipping of the image on the image plane.
+
+In reality this camera model suffers from multiple issues that make pinhole cameras unpractical for photography.
+The most obvious problem is the impossibility to create a infinitesimally small hole.
+As such the hole will always have a real diameter $D$.
+This causes a point on the image plane to receive light from multiple sources and thus negates the theoretically perfect focus of the pinhole camera.
+If one still tries to approach a $D$ of $0$, one will notice that the light entering the pinhole will also approach $0$.
+The image will become darker or the exposure time needed for a bright image will approach infinity.
+Additionally at such small values of $D$ the assumption of light as a ray will break down and one will notice diffraction start to appear and blurring the image further.
+
+To increase the amount of light hitting the image plane one or more lenses are used in real camera systems.
+Lenses are used to bundle all light coming from a single direction which hits the lens to a single point on the image plane.
+
 
 \section{Aperture and sensor}
+
 
 \dots
