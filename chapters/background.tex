@@ -2,6 +2,7 @@
 \label{ch:background}
 
 \section{Lens systems}
+\label{ch:background-lens}
 The simplest camera model is the pinhole camera.
 An infinitesimal small hole is punched into an opaque material and creates the aperture.
 An image is then taken from an image plane places at distance $d$ parallel to the aperture.
@@ -36,21 +37,74 @@ This results in the following projection:
     y_c
 \end{pmatrix}
 \end{align}
-The negative sign represents the flipping of the image on the image plane.
+The negative sign represents the flipping of the image on the image plane. \cite{Beyerer.2016}
 
 In reality this camera model suffers from multiple issues that make pinhole cameras unpractical for photography.
 The most obvious problem is the impossibility to create a infinitesimally small hole.
 As such the hole will always have a real diameter $D$.
 This causes a point on the image plane to receive light from multiple sources and thus negates the theoretically perfect focus of the pinhole camera.
-If one still tries to approach a $D$ of $0$, one will notice that the light entering the pinhole will also approach $0$.
+If one still tries to approach a $D$ of $0$ the light entering the pinhole will also approach $0$.
 The image will become darker or the exposure time needed for a bright image will approach infinity.
-Additionally at such small values of $D$ the assumption of light as a ray will break down and one will notice diffraction start to appear and blurring the image further.
+Additionally at such small values of $D$ the assumption of light as a ray will break down and one will notice diffraction start to appear and blurring the image further. \cite{Beyerer.2016}
 
 To increase the amount of light hitting the image plane one or more lenses are used in real camera systems.
-Lenses are used to bundle all light coming from a single direction which hits the lens to a single point on the image plane.
+In the following we will only describe single lens system, as they are sufficient to demonstrate the most important visual phenomena.
+Lenses are used to bundle all light entering parallel to the optical axis at the focal point of the lens.
+The relation between the radius of the lens $R$ and the distance of the focal point $f$ to the lens can be described as
+\begin{align}
+    R = 2 f \frac{n_2 - n_1}{n_1}
+\end{align}
+with $n_1$ representing the refractive index of the surrounding material and $n_2$ the refractive index of the lens. \cite{Beyerer.2016}
+
+Most lens system are constructed with rotational symmetry with the light entering at small angles $\alpha$ between the light ray and the optical axis.
+As such the approximation $\sin  \alpha \approx \alpha$ holds and we can linearize the law of refraction to
+\begin{align}
+    n_1 \sin \theta_1 = n_2 \sin \theta_2 \rightarrow n_1 \theta_1 = n_2 \theta_2.
+\end{align}
+This approximation is called paraxial approximation and enables the modeling of spherical lenses as linear systems with their associated matrices. \cite{Beyerer.2016}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{images/thin-lens-tl.png}
+    \caption{Optical mapping of a lens}
+    \label{fig:thin-lens}
+    \cite{Beyerer.2016}
+\end{figure}
+
+The relation between the object and image can be described with
+\begin{align}
+    \frac{G}{f} = - \frac{B}{b-f}.
+\end{align}
+For a sharp image the following relation holds:
+\begin{align}
+    \frac{1}{f} = \frac{1}{g} + \frac{1}{b}
+\end{align}
+As such the depth of field of this camera is limited to the plane with distance $g = \frac{bf}{b-f}$.
+How this depth of field is managed and adjusted is discussed in chapter \ref{ch:background-aperture}.
+
+If lenses could be manufactured from a perfectly transparent material that refracts all wavelengths equally, one would be able to record a perfectly sharp image at the correct distances.
+As such there are further effects caused by lenses that affect image clarity.
+
+% lenses cause chromatic abberation, lens flare,
 
 
-\section{Aperture and sensor}
+\section{Aperture}
+\label{ch:background-aperture}
+% aperture stop limit limits the angle of incoming rays
+% increases the depth of field but decreases light
 
+% field stop limits the angle of incoming light on the image plane
+% decreases the field of view
 
+% multiple lens systems can often be approximated by a single lens
+
+\section{Sensor}
+% only digital image sensors considered
+% sensors are exposed for a fixed length of time for each image
+% longer time increases brightness but causes blurring of moving objects
+% low brightness can be compensated with higher iso at cost of higher noise
+% sensors can be exposed all at once or one line at a time
+% bright light spills over into neighbouring pixels (bloom)
+% pixels are layed out in special patterns  (beyer)
+% the color of a pixel in a frame can be described as an integral over all angels over the exposure time
 \dots
