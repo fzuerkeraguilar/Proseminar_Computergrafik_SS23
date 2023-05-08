@@ -9,6 +9,12 @@
 % you can add custom packages that you may need
 \usepackage{amsmath}
 \usepackage{hyperref}
+\usepackage[acronym]{glossaries}
+
+\makenoidxglossaries
+
+\input{glossary}
+
 
 %% -------------------------------
 %% |  Information for PDF file   |
@@ -91,7 +97,7 @@
 % Userful command for partially translating the document (for bug-fixing e.g.)
 \includeonly{%
 titlepage,
-content
+content,
 }
 
 
@@ -130,7 +136,8 @@ These techniques are applicable in a wide range of application ranging from mobi
 \pagenumbering{arabic}
 \include{content}
 
-
+\clearpage
+\printnoidxglossary[type=\acronymtype,title=Acronyms]
 
 %% --------------------
 %% |   Bibliography   |
