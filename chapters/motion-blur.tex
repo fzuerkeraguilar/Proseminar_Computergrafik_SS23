@@ -1,5 +1,5 @@
 \chapter{Motion blur}
-In most real-world applications neither the camera or the scene are static.
+In most real-world applications neither the camera nor the scene are static.
 An instantaneous snapshot of the scene would show none of this motion.
 As such high speed motion in the scene or of the camera cannot be accurately represented without increasing the frame rate.
 This causes temporal aliasing which is jarring and disorienting for the viewer.
@@ -8,17 +8,35 @@ As such there are multiple approaches to reduce temporal aliasing in application
 
 \section{Geometry substitution}
 Instead of alleviating temporal aliasing by increasing the frame rate, one can modify the underlying geometry to approximate a moving object.
-The geometry and its texture are "smeared" across two time steps.
+The geometry and its texture are "smeared" across multiple time steps and only one image is captured.
+These methods work by approximating the equation \ref{eq:mb-cg-integral} to 
+\begin{align}
+    I_{xy} \approx \sum_{l'} \int_\Omega r_s(\omega)g_{l'}'(\omega)L_{l'}'(\omega) \: d\omega
+    \label{eq:mb-geo-approx}
+\end{align}
+In equation \ref{eq:mb-geo-approx} the geometry $l$ is replaced by an alternative geometry $l'$ and all other functions are replaced by time independent replacements.
+
+Early methods: \cite{Wloka.1996}
+
+today: \cite{Schmid.2010}
 
 \section{Accumulation buffers}
-For each frame render scene n times with small time steps and average images.
-Very high cost.
-Converges on true solution
+The closest approximation of motion blur using traditional rendering pipelines can be achieved by the use of accumulation buffers.
+This method is conceptually the easiest to understand and to implement.
+A hardware buffer is used to average over $N$ rendering passes at different time steps.
+The equation \ref{eq:mb-cg-integral} is approximated as
+\begin{align}
+    I_{xy} \approx \sum_{i=0}^{N} \frac{1}{N} \sum_{l} \int_\Omega f(\omega, t_i) g_l(\omega, t_i) L_l(\omega, t_i) \: d\omega.
+\end{align}
+Each individual frame is added with a factor of $\frac{1}{N}$, but these factors can be adjusted if a particular effect is desired.
+With higher values of $N$ this method approaches the correct solution, but only displays a new image every $N$ rendering passes.
+In many application this results in an unacceptable loss of performance.\cite{Haeberli.1990}
 
-Keep last n frames in accumulation buffer.
-When next frame is ready add with alpha to accumulation buffer and subtract the oldest frame.
-Oldest frame needs to be re-rendered.
-Increases input lag. Closest to realistic rendering. Roughly doubles the workload.
+If higher update rates are desired and all frames are added with the same factor, filtering by repeated integration can be used.
+In this method at first $N$ frames are rendered normally and the resulting image is displayed.
+To generated the next image the first image is rendered again and subtracted from the accumulation buffer.
+Then the frame $N+1$ is rendered and added to the accumulation buffer.
+With this method a new image is displayed for every two frames rendered.\cite{Heckbert.1986}
 
 \section{Motion fields}
-Store for each pixel it's motion relative to the camera. 
+Store for each pixel it's motion relative to the camera.

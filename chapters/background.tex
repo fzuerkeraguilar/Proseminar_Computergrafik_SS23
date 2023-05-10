@@ -1,6 +1,8 @@
 \chapter{Background on camera systems}
 \label{ch:background}
-
+Most real-time renderers use the simple pinhole camera model to create their images.
+This approach leads to perfect images of the scene at a moment in time.
+However to achieve a more realistic image or an artistic vision these images are to perfect, as they do not express real visual artefacts cameras and human eyes experience.
 \section{Lens systems}
 \label{ch:background-lens}
 The simplest camera model is the pinhole camera.
@@ -78,18 +80,49 @@ The relation between the object and image can be described with
 For a sharp image the following relation holds:
 \begin{align}
     \frac{1}{f} = \frac{1}{g} + \frac{1}{b}
+    \label{eq:sharp-thin-lens}
 \end{align}
 As such the \gls{dof} of this camera is limited to the plane with distance $g = \frac{bf}{b-f}$.
-How this \gls{dof} is managed and adjusted is discussed in chapter \ref{ch:background-aperture}.
+%How this \gls{dof} is managed and adjusted is discussed in chapter \ref{ch:background-aperture}.
+%If lenses could be manufactured from a perfectly transparent material that refracts all wavelengths equally, one would be able to record a perfectly sharp image at the correct distances.
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{images/coc.png}
+    \caption{Thin lens with imperfect focus}
+    \label{fig:coc-thin-lens}
+    \cite{Beyerer.2016}
+\end{figure}
+However a perfectly sharp image is not necessary as the human eye or an image sensor cannot resolve details smaller than a certain size.
+In case of a camera this lower limit is given by the physical size of the sensor pixels.
+As such equation \ref{eq:sharp-thin-lens} can be adjusted to
+\begin{align}
+    \frac{1}{f} = \frac{1}{g + \Delta g} + \frac{1}{b - \Delta b}.
+\end{align}
+Using similar triangles one can derive the equation
+\begin{align}
+    \frac{\varepsilon}{D} = \frac{b}{b - \Delta b} \implies \varepsilon = D \cdot \frac{b}{b - \Delta b}.
+    \label{eq:coc}
+\end{align}
+$\varepsilon$ describes the radius of the image a single dot on the image plane and is called \gls{coc}.
+This equation can be used to derive the following equation for \gls{dof}.
+\begin{align}
+    \Delta g = \Delta g(\varepsilon) = \frac{\varepsilon g}{\frac{D f}{g-f} - \varepsilon}
+    \label{eq:dof}
+\end{align}
+A few notes on equation \ref{eq:coc} and \ref{eq:dof}:
+\begin{itemize}
+    \item Pinhole cameras have a $D$ of 0 and thus perfect focus any real lens, including the human eye has a $D$ greater than 0.
+    \item To increase the \gls{dof} $D$ is typically reduced by the use of an aperture at the expense of image brightness.
+    \item The \gls{coc} increases much faster in the foreground than in the background.
+\end{itemize}
 
-If lenses could be manufactured from a perfectly transparent material that refracts all wavelengths equally, one would be able to record a perfectly sharp image at the correct distances.
-As such there are further effects caused by lenses that affect image clarity.
+%As such there are further effects caused by lenses that affect image clarity.
 
 % lenses cause chromatic abberation, lens flare,
 
 
-\section{Aperture}
-\label{ch:background-aperture}
+%\section{Aperture}
+%\label{ch:background-aperture}
 % aperture stop limit limits the angle of incoming rays
 % increases the depth of field but decreases light
 
@@ -99,6 +132,30 @@ As such there are further effects caused by lenses that affect image clarity.
 % multiple lens systems can often be approximated by a single lens
 
 \section{Sensor}
+During the capture of a frame the view of a point camera can be described by
+\begin{align}
+    I(\omega) = \int_{\Delta T} f(\omega,t) L(\omega,t)dt.
+    \label{eq:mb-integral}
+\end{align}
+Where $\omega$ is the direction of the incoming light, $L(\omega,t)$ is the incoming radiance and $f(\omega,t)$ models the influence of the optical system.
+This equation can be adjusted to be more applicable to computer-graphics systems as
+\begin{align}
+    I_{xy} = \sum_l \int_\Omega \int_{\Delta T} f(\omega, t) g_l(\omega, t) L_l(\omega, t) \: dt \: d\omega.
+    \label{eq:mb-cg-integral}
+\end{align}
+Here the pair $(x,y)$ represent the coordinates of the image pixel.
+The geometry of each object is accounted for by iterating over all objects $l$.
+To also account for the occlusion of objects in the scene $g_l(\omega, t)$ that is 1 if the object $l$ is directly visible and 0 if not.
+Even though $g_l(\omega, t)$ does not account for transparent or reflective objects, this is not a limitation of the model as the term $L_l(\omega, t)$ accounts for these situations.
+$L_l(\omega, t)$ simply describes what light is coming from angle $\Omega$ at time $t$ without describing the method how this is achieved. \cite{Navarro.2011}
+For any computer-generated images the renderer must approximate this integral.
+
+The effects of \gls{mb} are often unwanted, especially in photography, and are reduced with lowering the exposure time of the image sensor.
+This leaves less time for light to enter the sensor and therefore reduces image brightness.
+To compensate for this either the sensitivity of the sensor (ISO) must be increased or the aperture must be widened to increase the amount of light entering.
+Both options come with trade-offs to image quality.
+Increasing the sensor sensitivity also introduces noise to the final image, while increasing the aperture diameter reduces the \gls{dof} (see equation \ref{eq:dof}).
+
 % only digital image sensors considered
 % sensors are exposed for a fixed length of time for each image
 % longer time increases brightness but causes blurring of moving objects
@@ -107,4 +164,3 @@ As such there are further effects caused by lenses that affect image clarity.
 % bright light spills over into neighbouring pixels (bloom)
 % pixels are layed out in special patterns  (beyer)
 % the color of a pixel in a frame can be described as an integral over all angels over the exposure time
-\dots

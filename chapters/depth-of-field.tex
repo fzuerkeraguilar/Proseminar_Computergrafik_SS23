@@ -1,5 +1,5 @@
 \chapter{Depth-of-Field}
-As discussed in chapter \ref{ch:background} virtual cameras are able to take perfect color samples from every angle and thus create an image with infinite \gls{dof}.
+As discussed in chapter (\ref{ch:background}) virtual cameras are able to take perfect color samples from every angle and thus create an image with infinite \gls{dof}.
 However without expensive operations, like the simulation of a lens with path tracing, a virtual camera is only able to create perfect images.
 As such the difficulty in simulating depth of field in real-time lies in combining images with infinite \gls{dof} into good approximation of real camera images.
 \section{Accumulation buffers}
@@ -7,7 +7,7 @@ The image is rendered multiple times.
 Each time shifting the virtual camera to simulate the \gls{coc}.
 The image around the point on which the camera is pointed moves very little thus creating very little blur.
 The image far away from the focus point differ wildly and therefore are very blurred.
-Workload is increased n-fold. Converges to correct answer
+Rendering workload is increased n-fold. Converges to correct answer
 
 \section{2.5 dimensional rendering}
 Render background blurred.
