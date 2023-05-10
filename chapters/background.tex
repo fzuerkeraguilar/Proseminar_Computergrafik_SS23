@@ -100,7 +100,7 @@ As such equation \ref{eq:sharp-thin-lens} can be adjusted to
 \end{align}
 Using similar triangles one can derive the equation
 \begin{align}
-    \frac{\varepsilon}{D} = \frac{b}{b - \Delta b} \implies \varepsilon = D \cdot \frac{b}{b - \Delta b}.
+    \frac{\varepsilon}{D} = \frac{b}{b - \Delta b} \implies \varepsilon = D \cdot \frac{\Delta b}{b - \Delta b}.
     \label{eq:coc}
 \end{align}
 $\varepsilon$ describes the radius of the image a single dot on the image plane and is called \gls{coc}.
@@ -132,6 +132,7 @@ A few notes on equation \ref{eq:coc} and \ref{eq:dof}:
 % multiple lens systems can often be approximated by a single lens
 
 \section{Sensor}
+In contrast to a virtual camera an image sensor cannot interrogate the color of an object, but must wait for light to hit its light sensors and produce a strong enough image.
 During the capture of a frame the view of a point camera can be described by
 \begin{align}
     I(\omega) = \int_{\Delta T} f(\omega,t) L(\omega,t)dt.
