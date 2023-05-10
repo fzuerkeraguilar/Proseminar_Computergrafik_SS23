@@ -67,60 +67,50 @@ This approximation is called paraxial approximation and enables the modeling of 
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=\textwidth]{images/thin-lens-tl.png}
+    \includegraphics[width=0.8\textwidth]{images/fig23-01_1.png}
     \caption{Optical mapping of a lens}
     \label{fig:thin-lens}
-    \cite{Beyerer.2016}
+    \cite{Fernando.2004}
 \end{figure}
 
 The relation between the object and image can be described with
 \begin{align}
-    \frac{G}{f} = - \frac{B}{b-f}.
-\end{align}
-For a sharp image the following relation holds:
-\begin{align}
-    \frac{1}{f} = \frac{1}{g} + \frac{1}{b}
+    \frac{1}{F} &= \frac{1}{D} + \frac{1}{V} \\
+    \frac{Size\:of\:object}{F} &= -\frac{Size\:of\:image}{V-F}.
     \label{eq:sharp-thin-lens}
 \end{align}
-As such the \gls{dof} of this camera is limited to the plane with distance $g = \frac{bf}{b-f}$.
-%How this \gls{dof} is managed and adjusted is discussed in chapter \ref{ch:background-aperture}.
-%If lenses could be manufactured from a perfectly transparent material that refracts all wavelengths equally, one would be able to record a perfectly sharp image at the correct distances.
+
+As such the \gls{dof} of this camera is limited to the plane with distance $P$.
+
 \begin{figure}[h]
     \centering
-    \includegraphics[width=\textwidth]{images/coc.png}
+    \includegraphics[width=0.8\textwidth]{images/fig23-02_1.png}
     \caption{Thin lens with imperfect focus}
     \label{fig:coc-thin-lens}
-    \cite{Beyerer.2016}
+    \cite{Fernando.2004}
 \end{figure}
-However a perfectly sharp image is not necessary as the human eye or an image sensor cannot resolve details smaller than a certain size.
-In case of a camera this lower limit is given by the physical size of the sensor pixels.
-As such equation \ref{eq:sharp-thin-lens} can be adjusted to
+However a perfectly sharp image is not necessary as an image sensor cannot resolve details smaller than a certain size.
+This lower limit is typically given by the physical size of the sensor pixels.
+We therefore have a range of values of $D$ such that the image still appears in focus.
+Using similar triangles we can derive the equation
 \begin{align}
-    \frac{1}{f} = \frac{1}{g + \Delta g} + \frac{1}{b - \Delta b}.
-\end{align}
-Using similar triangles one can derive the equation
-\begin{align}
-    \frac{\varepsilon}{D} = \frac{b}{b - \Delta b} \implies \varepsilon = D \cdot |\frac{\Delta b}{b - \Delta b}|.
+    \frac{C}{A} = \frac{D-I}{D} \implies C = A \cdot |\frac{D-I}{D}|.
     \label{eq:coc}
 \end{align}
-As we have no control over $\Delta b$, we can rewrite this equation as
+To have more control over the camera, the equation can be expanded to:
 \begin{align}
-    \varepsilon = D \cdot |\frac{f}{b-f}| \cdot |1 - \frac{b}{g + \Delta g}|
+    C = | D \cdot \frac{F(P-D)}{D(P-F)}|.
 \end{align}
-or
-\begin{align}
-    \varepsilon = D \cdot | \frac{f \cdot \Delta g}{(g + \Delta g) (g - f)}|.
-\end{align}
-$\varepsilon$ describes the radius of the image a single dot on the image plane and is called \gls{coc}.
+$C$ describes the radius of the image a single dot on the image plane and is called \gls{coc}.
 This equation can be used to derive the following equation for \gls{dof}.
 \begin{align}
-    \Delta g = \Delta g(\varepsilon) = \frac{\varepsilon g}{\frac{D f}{g-f} - \varepsilon}
+    |P-D| = |P-D|(A) = \frac{C \cdot D}{\frac{A F}{P-F} - C}
     \label{eq:dof}
 \end{align}
 A few notes on equation \ref{eq:coc} and \ref{eq:dof}:
 \begin{itemize}
-    \item Pinhole cameras have a $D$ of 0 and thus perfect focus any real lens, including the human eye has a $D$ greater than 0.
-    \item To increase the \gls{dof} $D$ is typically reduced by the use of an aperture at the expense of image brightness.
+    \item Pinhole cameras have a diameter $A$ of 0 and thus perfect focus. Any real lens, including the human eye has a $A$ greater than 0.
+    \item To increase the \gls{dof} $A$ is typically reduced by the use of an aperture at the expense of image brightness.
     \item The \gls{coc} increases much faster in the foreground than in the background.
 \end{itemize}
 
