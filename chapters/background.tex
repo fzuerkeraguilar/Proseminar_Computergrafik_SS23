@@ -100,8 +100,16 @@ As such equation \ref{eq:sharp-thin-lens} can be adjusted to
 \end{align}
 Using similar triangles one can derive the equation
 \begin{align}
-    \frac{\varepsilon}{D} = \frac{b}{b - \Delta b} \implies \varepsilon = D \cdot \frac{\Delta b}{b - \Delta b}.
+    \frac{\varepsilon}{D} = \frac{b}{b - \Delta b} \implies \varepsilon = D \cdot |\frac{\Delta b}{b - \Delta b}|.
     \label{eq:coc}
+\end{align}
+As we have no control over $\Delta b$, we can rewrite this equation as
+\begin{align}
+    \varepsilon = D \cdot |\frac{f}{b-f}| \cdot |1 - \frac{b}{g + \Delta g}|
+\end{align}
+or
+\begin{align}
+    \varepsilon = D \cdot | \frac{f \cdot \Delta g}{(g + \Delta g) (g - f)}|.
 \end{align}
 $\varepsilon$ describes the radius of the image a single dot on the image plane and is called \gls{coc}.
 This equation can be used to derive the following equation for \gls{dof}.
