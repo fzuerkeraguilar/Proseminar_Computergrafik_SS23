@@ -32,11 +32,13 @@ Each individual frame is added with a factor of $\frac{1}{N}$, but these factors
 With higher values of $N$ this method approaches the correct solution, but only displays a new image every $N$ rendering passes.
 In many application this results in an unacceptable loss of performance.\cite{Haeberli.1990}
 
-If higher update rates are desired and all frames are added with the same factor, filtering by repeated integration can be used.
+If higher update rates are desired and all frames are added with the same factor, filtering by repeated integration can be used.\cite{Heckbert.1986}
 In this method at first $N$ frames are rendered normally and the resulting image is displayed.
 To generated the next image the first image is rendered again and subtracted from the accumulation buffer.
 Then the frame $N+1$ is rendered and added to the accumulation buffer.
-With this method a new image is displayed for every two frames rendered.\cite{Heckbert.1986}
+With this method a new image is displayed for every two frames rendered.\cite{Haeberli.1990}
 
 \section{Motion fields}
 Store for each pixel it's motion relative to the camera.
+\cite{Rosado.2008}
+\cite{Sousa.2008}

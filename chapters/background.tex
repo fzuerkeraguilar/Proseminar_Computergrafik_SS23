@@ -49,12 +49,20 @@ If one still tries to approach a $D$ of $0$ the light entering the pinhole will 
 The image will become darker or the exposure time needed for a bright image will approach infinity.
 Additionally at such small values of $D$ the assumption of light as a ray will break down and one will notice diffraction start to appear and blurring the image further. \cite{Beyerer.2016}
 
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/fig23-01_1.png}
+    \caption{Optical mapping of a thin-lens}
+    \label{fig:thin-lens}
+    \cite{Demers.2005}
+\end{figure}
+
 To increase the amount of light hitting the image plane one or more lenses are used in real camera systems.
-In the following we will only describe single lens system, as they are sufficient to demonstrate the most important visual phenomena.
+In the following we will only describe single thin-lens system, as they are sufficient to demonstrate the most important visual phenomena.
 Lenses are used to bundle all light entering parallel to the optical axis at the focal point of the lens.
-The relation between the radius of the lens $R$ and the distance of the focal point $f$ to the lens can be described as
+The relation between the radius of the lens $R$ and the distance of the focal point $F$ to the lens can be described as
 \begin{align}
-    R = 2 f \frac{n_2 - n_1}{n_1}
+    R = 2 F \frac{n_2 - n_1}{n_1}
 \end{align}
 with $n_1$ representing the refractive index of the surrounding material and $n_2$ the refractive index of the lens. \cite{Beyerer.2016}
 
@@ -65,14 +73,6 @@ As such the approximation $\sin  \alpha \approx \alpha$ holds and we can lineari
 \end{align}
 This approximation is called paraxial approximation and enables the modeling of spherical lenses as linear systems with their associated matrices. \cite{Beyerer.2016}
 
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.8\textwidth]{images/fig23-01_1.png}
-    \caption{Optical mapping of a lens}
-    \label{fig:thin-lens}
-    \cite{Fernando.2004}
-\end{figure}
-
 The relation between the object and image can be described with
 \begin{align}
     \frac{1}{F} &= \frac{1}{D} + \frac{1}{V} \\
@@ -80,14 +80,14 @@ The relation between the object and image can be described with
     \label{eq:sharp-thin-lens}
 \end{align}
 
-As such the \gls{dof} of this camera is limited to the plane with distance $P$.
+As such the \gls{dof} of a camera with a distance is limited to a single plane with distance $P$.
 
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.8\textwidth]{images/fig23-02_1.png}
     \caption{Thin lens with imperfect focus}
     \label{fig:coc-thin-lens}
-    \cite{Fernando.2004}
+    \cite{Demers.2005}
 \end{figure}
 However a perfectly sharp image is not necessary as an image sensor cannot resolve details smaller than a certain size.
 This lower limit is typically given by the physical size of the sensor pixels.
@@ -102,7 +102,7 @@ To have more control over the camera, the equation can be expanded to:
     C = | D \cdot \frac{F(P-D)}{D(P-F)}|.
 \end{align}
 $C$ describes the radius of the image a single dot on the image plane and is called \gls{coc}.
-This equation can be used to derive the following equation for \gls{dof}.
+This equation can be used to derive the following equation for \gls{dof}:
 \begin{align}
     |P-D| = |P-D|(A) = \frac{C \cdot D}{\frac{A F}{P-F} - C}
     \label{eq:dof}
@@ -114,20 +114,7 @@ A few notes on equation \ref{eq:coc} and \ref{eq:dof}:
     \item The \gls{coc} increases much faster in the foreground than in the background.
 \end{itemize}
 
-%As such there are further effects caused by lenses that affect image clarity.
-
-% lenses cause chromatic abberation, lens flare,
-
-
-%\section{Aperture}
-%\label{ch:background-aperture}
-% aperture stop limit limits the angle of incoming rays
-% increases the depth of field but decreases light
-
-% field stop limits the angle of incoming light on the image plane
-% decreases the field of view
-
-% multiple lens systems can often be approximated by a single lens
+POINT SPREAD FUNCTION
 
 \section{Sensor}
 In contrast to a virtual camera an image sensor cannot interrogate the color of an object, but must wait for light to hit its light sensors and produce a strong enough image.

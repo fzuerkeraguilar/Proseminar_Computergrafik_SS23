@@ -7,25 +7,28 @@ The image is rendered multiple times.
 Each time shifting the virtual camera to simulate the \gls{coc}.
 The image around the point on which the camera is pointed moves very little thus creating very little blur.
 The image far away from the focus point differ wildly and therefore are very blurred.
-Rendering workload is increased n-fold. Converges to correct answer
+Rendering workload is proportional to area of biggest \gls{coc}. 
+Converges to correct answer
+\cite{Haeberli.1990}
 
-\section{2.5 dimensional rendering}
-Render background blurred.
-Render objects in focus.
-Render foreground blurred.
+\section{Single-Layer approaches}
 
-Object can't go between layers.
-background and foreground are uniformly blurred, without variation with distance.
-
-\section{Backwards depth mapping}
+\subsection{Scattering methods}
+For each pixel in image a \gls{coc} is calculated based upon the z-buffer.
+The pixels color is then used by a circular sprite with size of \gls{coc} and transparency proportional to size of \gls{coc}.
+Final pixel color is based on sum of all sprites overlapping it.
+Requires a sorting of every pixel based on depth and is often not practical for real-time applications.
+\cite{Potmesil.1981}
+Improvements by \cite{Rokita.1993} and \cite{Dudkiewicz.1995}
+\subsection{Gathering methods}
 z-buffer is generated with image.
 
-Simple form: Each pixel is blurred according to distance from focus plane.
-But: Generates unrealistic result at the boundaries of object with far background.
+Each pixel is blurred according to distance from focus plane.
+Can be implemented by LERPing between mip-maps of image.
+\cite{Gilham.2007} and \cite{Hammon.2008}
+or \cite{Lee.2009}
 
-% Depth-of-Field Rendering by Pyramidal Image Processing
-% https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1467-8659.2007.01088.x
-Complex form: Split image into n sub-images, culling pixels not in same "plane".
-Culled pixels are disoccluded with chosen method and each sub-image is blurred according to distance to focus distance.
-Images are combined to create final image.
+\section{Multi-Layer approaches}
 
+\cite{Kraus.2007}
+\cite{Zhou.2007}
