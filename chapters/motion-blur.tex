@@ -40,5 +40,6 @@ With this method a new image is displayed for every two frames rendered.\cite{Ha
 
 \section{Motion fields}
 Store for each pixel it's motion relative to the camera.
-\cite{Rosado.2008}
+This can be done by directly passing them to the pixel shader or with the depth-map and the current and previous view-projection matrix as shown in \cite{Rosado.2008}.
+Then multiple samples are taken in the direction of the calculated direction and averaged to calculate the final pixel value.
 \cite{Sousa.2008}

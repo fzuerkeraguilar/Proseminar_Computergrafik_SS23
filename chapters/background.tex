@@ -114,7 +114,12 @@ A few notes on equation \ref{eq:coc} and \ref{eq:dof}:
     \item The \gls{coc} increases much faster in the foreground than in the background.
 \end{itemize}
 
-POINT SPREAD FUNCTION
+The blur of optical system can be described by its \gls{psf}.
+It characterizes the spread of a single point source of light onto the image plane and takes into account the many factors that contribute to a blurring of the image.
+This includes, but is not limited to, imperfections in the lens, the shape of the aperture, diffraction effects and spherical and chromatic aberrations.
+The \gls{psf} is typically represented as a two-dimensional function with a Gaussian or disk-like shape.
+When thinking of an optical system as a function $f$ that transform incoming light rays into an image, the \gls{psf} represents its impulse response function.\cite{Beyerer.2016}
+The ability to define the particular \gls{psf} used is important to simulate particular camera systems accurately.
 
 \section{Sensor}
 In contrast to a virtual camera an image sensor cannot interrogate the color of an object, but must wait for light to hit its light sensors and produce a strong enough image.
