@@ -126,7 +126,7 @@ The final \gls{coc} value used by this method is given by:
 \end{align}
 Where $D_0$ represents the downsampled depth-texture and $D_B$ represents the blurred depth-texture for each pixel.
 A final full-screen pass is finally done to apply a variable width blur by interpolating between the original pinhole image and downsampled versions of it.
-Lee et al. \cite{Lee.2009} improves on Hammond's method by using non-linear interpolation and anisotropic mipmapping.
+Lee et al. \cite{Lee.2009} improves on Hammond's method by using non-linear interpolation during the blurring step.
 However both methods still suffer from the fundamental limitations of this approach.
 As such they both blur object behind transparent foreground objects and struggle with high blur radii.
 
@@ -153,21 +153,25 @@ However for optimal performance a separable kernel should be used.\cite{Demers.2
 \end{figure}
 
 The final artefact created by this approach is also caused at the border between foreground and in focus objects.
-
+As the image of blurred objects is blurred indiscriminately, the blurring process will also use color information of in focus areas.
+As such focused image areas will spread into blurred areas, as seen in figure \ref{fig:pxl-bleeeding}.\cite{Demers.2005}
+One approach to reduce these artefacts proposed by Lee et al. \cite{Lee.2009} is the use of an \textit{anisotropic mipmapping} scheme to preclude the effects of adjacent pixels.
 
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.5\textwidth]{images/pixel-bleeding.jpg}
-    \caption{Caption}
-    \label{fig:my_label}
+    \caption{Pixel-Bleeding Artefacts \cite{Demers.2005}}
+    \label{fig:pxl-bleeeding}
 \end{figure}
 
-Basic variant:\cite{Gilham.2007}, 
-Improvements by:\cite{Hammon.2008} or \cite{Lee.2009}
-
 \section{Multi-Layer approaches}
-The multi-layer approaches have been developed to address the problem of intensity leakage and the lack of partial occlusion.
+Multi-layer approaches have been developed to address the problem of intensity leakage and the lack of partial occlusion.
 The rendered pin-hole image is decomposed into several sub-images each representing a layer in the scene.
+In the following we will present a method presented by Kraus and Strengert \cite{Kraus.2007}.
+
+First a normal pinhole image with according depth information is rendered and stored as textures.
+This image is then split into multiple layers using the method introduced and further developed by Barsky et al.\cite{Barsky.2002, BrianA.Barsky.2005}
+
 Pixel at the edges are lerped across two sub-images to mask transition between layers, especially on objects that span across layers.
 The partial occlusion is addressed by extrapolating the occluded pixels in a sub-layer.
 The image quality is often better than single-layer approaches, but they suffer from many texture lookups and therefore reduced performance.
