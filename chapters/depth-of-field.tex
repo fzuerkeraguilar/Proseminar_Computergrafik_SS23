@@ -31,7 +31,7 @@ This method therefore converges on the correct solution and does not suffer from
 
 \begin{wrapfigure}{R}{0.4\linewidth}
 \begin{center}
-    \includegraphics[width=0.38\textwidth]{images/sample-locations.png}
+    \includegraphics[width=0.4\textwidth]{images/sample-locations.png}
 \end{center}
 \caption{Position of sample location used to sample the aperture of the camera lens. \cite{Haeberli.1990}}
 \label{fig:sample-pos}
@@ -79,17 +79,91 @@ Splatting is done via commutative blending onto three separate layers.
 A second rendering pass of hidden scene elements is done to alleviate the partial occlusion problems of the traditional method.
 
 \subsection{Gathering methods}
-The second single-layer method was introduced by Rokita et al. and gathers the color information for each pixel of the final image by consulting the image of a pinhole camera.\cite{Rokita.1993}
-It is also commonly referred to as \textit{reverse-mapped z-buffer \gls{dof}}.
+The second single-layer method was introduced by Rokita et al. \cite{Rokita.1993} and gathers the color information for each pixel of the final image by consulting the image of a pinhole camera.
+It is also commonly referred to as \textit{reverse-mapped z-buffer \gls{dof}}.\cite{Gilham.2007}
 
-The main advantage of this method is the ability to perform the necessary calculations in parallel for each pixel and therefore maximising the performance of modern rendering hardware.
+The simplest implementation of this approach is achieved by generating a mip-map of the rendered screen texture.
+Then the \gls{coc} is calculated for each pixel and is used to perform trilinear interpolation to find the final color value.
+To access the depth buffer was an issue in early graphics APIs and early GPUs and had to be manually created.
+However since the introduction of OpenGL 2.0 and DirectX 9 and their compatible hardware, access to depth buffer information is widely supported.
+As this process is easily parallelized per pixel and has hardware support on modern GPUs, it is very performant on modern graphics hardware.
+However the simple implementation generates multiple objectionable visual artefacts, that make the simple implementation unsuitable for most applications.\cite{Demers.2005, Hammon.2008}
+
+The worst artifact is caused by the single depth lookup per pixel.
+In the case of a real camera system, objects and by extension their outline are blurred.
+A point at the edge of an out of focus object will spread out over the focused background.
+This causes a smooth transition from blurry objects in the foreground to the focused objects.
+Taking a single depth look up per pixel will only blur the image section of the object and not the entire object.
+As such a hard boundary between the foreground and the focused part of the image will appear in the final image.
+This artifact can be seen in figure \ref{fig:depth-discontinuity}.\cite{Demers.2005}
+
+%\begin{wrapfigure}{R}{0.5\linewidth}
+%\begin{center}
+%    \includegraphics[width=0.48\textwidth]{images/depth-discontinuity.jpg}
+%\end{center}
+%\caption{Depth Discontinuity causes hard edges around blurred objects. %\cite{Demers.2005}}
+%\label{fig:depth-discontinuity}
+%\end{wrapfigure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{images/depth-discontinuity.jpg}
+    \caption{Depth Discontinuity causes hard edges around blurred objects. \cite{Demers.2005}}
+    \label{fig:depth-discontinuity}
+\end{figure}
+
+Hammond \cite{Hammon.2008} presents an approach to resolve this issue and generate a more natural \gls{dof} for foreground objects.
+A full-screen pass that calculates the \gls{coc} for each foreground object is calculated and stored as a texture.
+To calculate the \gls{coc} equation \ref{eq:coc-expanded} may be used, but other options are available for more artistic control.
+Especially in first-person games it is often desirable for the player's weapons or other important objects to always remain in focus.
+To achieve this Hammond Jr. proposes using negative depth values to indicate pixels containing to the view model.
+Pixels in focus or background are assigned a \gls{coc} of zero.
+This texture is first downsampled to one-fourth resolution along both axis for better performance.
+The downsampled texture is then blurred using a Gaussian blur to eliminate edges between foreground and focused and background objects.
+The final \gls{coc} value used by this method is given by:
+\begin{align}
+    D = 2 \cdot max(D_0, D_B) - D_0.
+\end{align}
+Where $D_0$ represents the downsampled depth-texture and $D_B$ represents the blurred depth-texture for each pixel.
+A final full-screen pass is finally done to apply a variable width blur by interpolating between the original pinhole image and downsampled versions of it.
+Lee et al. \cite{Lee.2009} improves on Hammond's method by using non-linear interpolation and anisotropic mipmapping.
+However both methods still suffer from the fundamental limitations of this approach.
+As such they both blur object behind transparent foreground objects and struggle with high blur radii.
+
+Another artefact created by simple trilinear filtering are bilinear interpolation artefacts of the magnified layers.
+These causes a stair-stepped pattern to appear in blurred objects and can be seen in figure \ref{fig:trilinear-filtering}.
+To alleviate these artifacts a different downsampling method may be used.
+Another option is to apply a Gaussian blur to the downsampled images to simulate a more realistic blur.
+Different kernels may be chosen to simulate a particular \gls{psf}.
+However for optimal performance a separable kernel should be used.\cite{Demers.2005, Gilham.2007}
+
+%\begin{wrapfigure}{R}{0.5\linewidth}
+%\begin{center}
+%    \includegraphics[width=0.48\textwidth]{images/trilinear-filtering.jpg}
+%\end{center}
+%\caption{Magnification Artifacts with Trilinear Filtering \cite{Demers.2005}}
+%\label{fig:trilinear-filtering}
+%\end{wrapfigure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{images/trilinear-filtering.jpg}
+    \caption{Magnification Artifacts with Trilinear Filtering \cite{Demers.2005}}
+    \label{fig:trilinear-filtering}
+\end{figure}
+
+The final artefact created by this approach is also caused at the border between foreground and in focus objects.
 
 
-Each pixel is blurred according to distance from focus plane.
-Can be implemented by LERPing between mip-maps of image.
-To lessen interpolation artefacts of mip-maps a gaussian filter or other PSF can be used.
-The depth map may also be mip-mapped or blurred to lessen the effects of depth discontinuities.
-\cite{Gilham.2007}, \cite{Hammon.2008},\cite{Zhou.2007} or \cite{Lee.2009}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{images/pixel-bleeding.jpg}
+    \caption{Caption}
+    \label{fig:my_label}
+\end{figure}
+
+Basic variant:\cite{Gilham.2007}, 
+Improvements by:\cite{Hammon.2008} or \cite{Lee.2009}
 
 \section{Multi-Layer approaches}
 The multi-layer approaches have been developed to address the problem of intensity leakage and the lack of partial occlusion.
