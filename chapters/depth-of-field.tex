@@ -24,7 +24,7 @@ To simulate a depth-of-field effect the following steps are iterated:
     \item \textbf{Rendering:} An image is created using the traditional rasterization pipeline
     \item \textbf{Accumulation:} The rendered image is added to the accumulation buffer.
 \end{enumerate}
-The jittering of the camera simulates the size of the individual image pixels of a real image sensor.
+The jittering of the camera simulates the size of the individual image pixel of a real image sensor.
 The images are then averaged to approximate the integration of all light paths hitting a sensor pixel.
 As such out of focus objects will have varying positions in the rendered images and thus are spread out over their \gls{coc} in the final image.
 This method therefore converges on the correct solution and does not suffer from the image artefacts mentioned earlier.
@@ -101,14 +101,14 @@ This artifact can be seen in figure \ref{fig:depth-discontinuity}.\cite{Demers.2
 %\begin{center}
 %    \includegraphics[width=0.48\textwidth]{images/depth-discontinuity.jpg}
 %\end{center}
-%\caption{Depth Discontinuity causes hard edges around blurred objects. %\cite{Demers.2005}}
+%\caption{Depth Discontinuity causes hard edges around blurred objects. \cite{Demers.2005}}
 %\label{fig:depth-discontinuity}
 %\end{wrapfigure}
 
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.5\textwidth]{images/depth-discontinuity.jpg}
-    \caption{Depth Discontinuity causes hard edges around blurred objects. \cite{Demers.2005}}
+    \caption{Depth discontinuity causes hard edges around blurred objects. \cite{Demers.2005}}
     \label{fig:depth-discontinuity}
 \end{figure}
 
@@ -116,8 +116,8 @@ Hammond \cite{Hammon.2008} presents an approach to resolve this issue and genera
 A full-screen pass that calculates the \gls{coc} for each foreground object is calculated and stored as a texture.
 To calculate the \gls{coc} equation \ref{eq:coc-expanded} may be used, but other options are available for more artistic control.
 Especially in first-person games it is often desirable for the player's weapons or other important objects to always remain in focus.
-To achieve this Hammond Jr. proposes using negative depth values to indicate pixels containing to the view model.
-Pixels in focus or background are assigned a \gls{coc} of zero.
+To achieve this Hammond Jr. proposes using negative depth values to indicate pixel containing to the view model.
+Pixel in focus or background are assigned a \gls{coc} of zero.
 This texture is first downsampled to one-fourth resolution along both axis for better performance.
 The downsampled texture is then blurred using a Gaussian blur to eliminate edges between foreground and focused and background objects.
 The final \gls{coc} value used by this method is given by:
@@ -148,33 +148,85 @@ However for optimal performance a separable kernel should be used.\cite{Demers.2
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.5\textwidth]{images/trilinear-filtering.jpg}
-    \caption{Magnification Artifacts with Trilinear Filtering \cite{Demers.2005}}
+    \caption{Magnification artifacts with Trilinear Filtering \cite{Demers.2005}}
     \label{fig:trilinear-filtering}
 \end{figure}
 
 The final artefact created by this approach is also caused at the border between foreground and in focus objects.
 As the image of blurred objects is blurred indiscriminately, the blurring process will also use color information of in focus areas.
-As such focused image areas will spread into blurred areas, as seen in figure \ref{fig:pxl-bleeeding}.\cite{Demers.2005}
-One approach to reduce these artefacts proposed by Lee et al. \cite{Lee.2009} is the use of an \textit{anisotropic mipmapping} scheme to preclude the effects of adjacent pixels.
+As such focused image areas will spread into blurred areas, as seen in figure \ref{fig:pxl-bleeeding}.
+This artefact is called \textit{intensity-} or \textit{pixel-bleeding}.\cite{Demers.2005}
+One approach to reduce these artefacts proposed by Lee et al. \cite{Lee.2009} is the use of an \textit{anisotropic mipmapping} scheme to preclude the effects of adjacent pixel.
 
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.5\textwidth]{images/pixel-bleeding.jpg}
-    \caption{Pixel-Bleeding Artefacts \cite{Demers.2005}}
+    \caption{Pixel-bleeding artefacts of focused tank \cite{Demers.2005}}
     \label{fig:pxl-bleeeding}
 \end{figure}
 
 \section{Multi-Layer approaches}
-Multi-layer approaches have been developed to address the problem of intensity leakage and the lack of partial occlusion.
-The rendered pin-hole image is decomposed into several sub-images each representing a layer in the scene.
-In the following we will present a method presented by Kraus and Strengert \cite{Kraus.2007}.
+Multi-layer approaches have been developed to address the problem of intensity leakage and the lack of partial occlusion of single-layer approaches.
+In multi-layer approaches the rendered pin-hole image is first decomposed into several sub-images each representing a layer in the scene.
+The layers are then separately blurred and recombined at the end.
+How the image is separated and how the sub-images are combined are the main points of difference between different methods.
+In the following we will present a method presented by Kraus and Strengert \cite{Kraus.2007}, which builds upon a method presented by Barsky et al.\cite{BrianA.Barsky.2005}
 
 First a normal pinhole image with according depth information is rendered and stored as textures.
-This image is then split into multiple layers using the method introduced and further developed by Barsky et al.\cite{Barsky.2002, BrianA.Barsky.2005}
+This image is then split into multiple sub-images denoted by $I^{(i)}$.
+Each layer is initialized to the input pinhole image and its depth map.
+For each layer a value $z^{(i)}$ is defined by:
+\begin{align}
+    z^0 &= z_{focal} \\
+    z^i &= \frac{z_{focal}}{1 - r^{(i)}_{pix} / r^{(z \rightarrow \infty)}_{pix}}
+\end{align}
+Where by $r^{(i)}_{pix}$ represents the blur radius given by the blur method for each layer.
+Negative values of $i < 0$ represent the foreground, conversely $i > 0$ represent the background.
+Due to a following step, all pixel with depth values of $z < z^{(i+2)}$ for layer $I^{(i)}$ are discarded and set to transparent black.\cite{Kraus.2007}
 
-Pixel at the edges are lerped across two sub-images to mask transition between layers, especially on objects that span across layers.
-The partial occlusion is addressed by extrapolating the occluded pixels in a sub-layer.
-The image quality is often better than single-layer approaches, but they suffer from many texture lookups and therefore reduced performance.
+In the next step the discarded foreground pixel of each layers are disoccluded.
+This step is mostly done to alleviate the problem of intensity leakage.
+A method of GPU-based pyramidal interpolation presented by Strengert et al. \cite{Strengert.2006} is used to interpolate color and depth information across discarded pixel.
+To generate information for the missing pixel, first the available pixel and their alpha values are averaged onto a texture with half resolution in both dimensions, similar to the generation of mip-maps.
+Is the synthesis step of this method, each layer is searched for pixel with missing color information (i.e. with alpha value of 0), is given the color of the layer directly above.
+This is repeated until the bottom layer is reached, where all RGB-components are divided by their alpha value to get their final color.
+This offers up new color information for the blurring step and prevents the pixel-bleeding artefacts of caused by closer layers as seen in figure \ref{fig:pxl-bleeeding}.
 
-\cite{Kraus.2007}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{images/pyramidal-interpolation.png}
+    \caption{Pyramidal Interpolation of missing pixel.\cite{Kraus.2007}}
+    \label{fig:pyramidal-interpolation}
+\end{figure}
 
+The main difficulty of multi-layer approaches lies in hiding the boarders between individual layers.
+To address this issue, this method "matts" each layer $I^{(i)}$ using a piecewise linear function $\omega^{(i)}(z)$ seen in figure \ref{fig:matt-func}.
+Each color component is multiplied by $\omega^{(i)}(z)$.
+Thus $\omega^{(i)}(z)$ can be viewed as a weighting function between layers and contributes to a smooth transition between layers in the final blending.
+This step must be done before the blurring of individual layers to ensure the blurring step does not use color information of layers further back.\cite{Kraus.2007}
+
+\begin{wrapfigure}{R}{0.5\linewidth}
+\begin{center}
+    \includegraphics[width=0.48\textwidth]{images/matt-function.png}
+\end{center}
+\caption{The matting function $\omega^{(i)}(z)$ for sub-image $I^{(i)}$.\cite{Kraus.2007}}
+\label{fig:matt-func}
+\end{wrapfigure}
+
+In this implementation of the method the blurring of the sub-images is again done via the pyramidal method introduced by Strengert et al. \cite{Strengert.2006}.
+To generate a blur of width $2^l$ the original image is copied in to level $G_0$ of the pyramid and levels $G_1$ to $G_l$ are computed.
+The synthesis of the final blurred sub-image is done as discussed above.
+Kraus et al. propose the use of a scaled blur radius of
+\begin{align}
+    r^{(0)}_{pix} &= 0 \\
+    r^{(i)}_{pix} &= 2.0 \cdot 0.85 \cdot 2^{|i| - 1}
+\end{align}
+to adjust for the increased perceived blurriness created by the influence of the neighboring layers introduced in the matting step.
+Finally the individual sub-images are blended back to front using traditional alpha blending over a buffer initialized to black.\cite{Kraus.2007}
+
+This method offers an improvement to image accuracy compared to single-layer methods.
+Especially when considering depth discontinuities and pixel-bleeding as the separation onto sub-layers isolates pixel from pixel with differing depths.
+When considering performance the multi-layer approach requires high memory performance and capacity as each layer and its pyramid of downscaled layers must be stored and modified in parallel.
+This also reveals the main drawback of multi-layer methods, namely their performance scaling with the size of the largest \gls{coc}.
+As the radius of \gls{coc} rises, so must the number of layers increase to sustain the image quality.
+This decreases performance at higher \gls{coc} and decreases the usefulness of this approach.
