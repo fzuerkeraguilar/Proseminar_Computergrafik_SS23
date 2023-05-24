@@ -7,6 +7,27 @@ This lack of representation results is temporal aliasing between frames, which i
 This effect is particularly exacerbated in interactive applications as there is no control of the camera.
 As such multiple approaches to reduce temporal aliasing, in application where computational resources and thus frame rates are limited, have been developed.
 
+\section{Accumulation buffers}
+\label{ch:mb-acc}
+The closest approximation of motion blur using traditional rendering pipelines can be achieved by the use of accumulation buffers.
+This method is relatively easy to understand and implement.
+A hardware buffer is used to average over $N$ rendering passes at different time steps.
+The equation \ref{eq:mb-cg-integral} is approximated as
+
+\begin{align}
+    I_{xy} \approx \sum_{i=0}^{N-1} \frac{1}{N} \sum_{l} \int_\Omega f(\omega, t_i) g_l(\omega, t_i) L_l(\omega, t_i) \: d\omega.
+\end{align}
+
+Each individual frame is added with a factor of $\frac{1}{N}$, but these factors can be adjusted if a particular effect is desired.
+With higher values of $N$ this method approaches the correct solution, but only displays a new image every $N$ rendering passes.
+In many application this results in an unacceptable loss of performance \cite{Haeberli.1990}.
+
+If higher update rates are desired and all frames are added with the same factor, filtering by repeated integration can be used \cite{Heckbert.1986}.
+Initially $N$ frames are rendered normally and the resulting image is displayed.
+To generated the next image, the first frame is rendered again and subtracted from the accumulation buffer.
+Then frame $N+1$ is rendered and added to the accumulation buffer.
+With this method a new image is displayed for every two frames rendered \cite{Haeberli.1990}.
+
 \section{Geometry substitution}
 \label{ch:mb-gs}
 An alternative approach to reduce temporal aliasing by increasing the frame rate involves modifying the underlying geometry to approximate a moving object.
@@ -57,27 +78,6 @@ However, the basic implementation of this approach comes with various limitation
 The most significant constraints include the missing support for polygons with genus higher than zero (i.e., a torus) and rotation.
 Additionally any real-time shadows calculated for the moving object must consider the transparency added to the motion volume by its motion.
 Nevertheless, this simple method plays an important part in the approach discussed in section \ref{ch:mb-mf}.
-
-\section{Accumulation buffers}
-\label{ch:mb-acc}
-The closest approximation of motion blur using traditional rendering pipelines can be achieved by the use of accumulation buffers.
-This method is relatively easy to understand and implement.
-A hardware buffer is used to average over $N$ rendering passes at different time steps.
-The equation \ref{eq:mb-cg-integral} is approximated as
-
-\begin{align}
-    I_{xy} \approx \sum_{i=0}^{N-1} \frac{1}{N} \sum_{l} \int_\Omega f(\omega, t_i) g_l(\omega, t_i) L_l(\omega, t_i) \: d\omega.
-\end{align}
-
-Each individual frame is added with a factor of $\frac{1}{N}$, but these factors can be adjusted if a particular effect is desired.
-With higher values of $N$ this method approaches the correct solution, but only displays a new image every $N$ rendering passes.
-In many application this results in an unacceptable loss of performance \cite{Haeberli.1990}.
-
-If higher update rates are desired and all frames are added with the same factor, filtering by repeated integration can be used \cite{Heckbert.1986}.
-Initially $N$ frames are rendered normally and the resulting image is displayed.
-To generated the next image, the first frame is rendered again and subtracted from the accumulation buffer.
-Then frame $N+1$ is rendered and added to the accumulation buffer.
-With this method a new image is displayed for every two frames rendered \cite{Haeberli.1990}.
 
 \section{Motion fields}
 \label{ch:mb-mf}
