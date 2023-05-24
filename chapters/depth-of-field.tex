@@ -2,20 +2,11 @@
 As discussed in chapter \ref{ch:background} virtual cameras are able to take perfect color samples from every angle and thus create an image with infinite \gls{dof}.
 However without expensive operations, like the simulation of a lens with path tracing, a virtual camera is only able to create perfect images.
 As such the difficulty in simulating depth of field in real-time lies in combining images with infinite \gls{dof} into good approximation of real camera images.
-The ideal method would be able to satisfy the following criteria:
-\begin{itemize}
-    \item Specification of a point-spread-function
-    \item Per-pixel blur level control
-    \item Lack of intensity leakage
-    \item Lack of depth discontinuity artefacts
-    \item Simulation of partial occlusion
-    \item High performance
-\end{itemize}
-
-\todo{Explain intensity leakage, discontinuity artefacts and partial occlusion}
+The ideal method would be able to produce close to ray-tracing accuracy while having real-time performance.
+To approach this ideal several approaches have been developed, which will be presented in the following.
 
 \section{Accumulation buffers}
-The earliest method to generate a depth-of-field effect using traditional rasterization hardware was presented by Haeberli and Akeley. \cite{Haeberli.1990}
+The earliest method to generate a depth-of-field effect using traditional rasterization hardware was presented by Haeberli and Akeley \cite{Haeberli.1990}.
 Their method introduces the use of an accumulation buffer to the rendering pipeline to simulate multiple effects, including motion blur and \gls{dof}.
 The accumulation buffer is a region of memory used by the rendering hardware to accumulate and average the results of multiple rendering passes.
 To simulate a depth-of-field effect the following steps are iterated:
@@ -33,7 +24,7 @@ This method therefore converges on the correct solution and does not suffer from
 \begin{center}
     \includegraphics[width=0.4\textwidth]{images/sample-locations.png}
 \end{center}
-\caption{Position of sample location used to sample the aperture of the camera lens. \cite{Haeberli.1990}}
+\caption{Position of sample location used to sample the aperture of the camera lens \cite{Haeberli.1990}}
 \label{fig:sample-pos}
 \end{wrapfigure}
 
@@ -45,7 +36,7 @@ As such this approach great artistic flexibility.
 To hide the individual frames a minimum density of samples must be taken to sufficiently cover the biggest \gls{coc} present in the image.
 As such the amount of work needed to get acceptable results scales linearly with the \textbf{area} of the biggest \gls{coc} created by the scene.
 Acceptable results are typically achieved with a single pass per 4 pixel area of the \gls{coc}.
-This still results in 50 passes at a \gls{coc} with a 8 pixel radius. \cite{Demers.2005}
+This still results in 50 passes at a \gls{coc} with a 8 pixel radius \cite{Demers.2005}.
 Thanks to the use of a traditional rasterization pipeline this method is often faster than ray-traced approaches.
 However the high increase in the rendering workload excludes its use in all but the most CPU-bound real-time rendering workloads or as reference images.
 
@@ -58,7 +49,7 @@ Due to the limitation on the information provided, all of the following methods 
 The single-layer approaches can be categorized into two sub-categories based on the direction of how the final color for each pixel is calculated.
 
 \subsection{Scattering methods}
-The first method to generate depth of field, commonly referred to as \textit{splatting}, or \textit{forward-mapped z-buffer \gls{dof}} was introduced by Potmesil et al.\cite{Potmesil.1981}
+The first method to generate depth of field, commonly referred to as \textit{splatting}, or \textit{forward-mapped z-buffer \gls{dof}} was introduced by Potmesil et al \cite{Potmesil.1981}.
 It uses the fact that the image of pinhole camera stores the light intensity for \textbf{most} directions that hit the sensor.
 With the additional information of the depth we can calculate the \gls{coc} of each light ray.
 To efficiently calculate the final color of a pixel, a sprite with the calculated \gls{coc} size is placed at its position.
@@ -71,7 +62,7 @@ The main visual imperfection created by this method is the lack of partial occlu
 This is barely noticeable in static scenes, but causes bright objects to suddenly appear when coming into view behind other objects.
 As this method relies on the interaction of transparent sprites, we must each sprite for accurate transparency.
 This log-linear time complexity in regard to the resolution is the main drawback of this method.
-While real-time application such as video games may not find this performance acceptable, the high quality make it an attractive option for providing previews of renders.\cite{Demers.2005}
+While real-time application such as video games may not find this performance acceptable, the high quality make it an attractive option for providing previews of renders \cite{Demers.2005}.
 Real-time performance can be achieved when using commutative blending.
 
 Lee et al. \cite{Lee.2008} present a modified version of this algorithm that splits the scene into three layers.
@@ -80,14 +71,14 @@ A second rendering pass of hidden scene elements is done to alleviate the partia
 
 \subsection{Gathering methods}
 The second single-layer method was introduced by Rokita et al. \cite{Rokita.1993} and gathers the color information for each pixel of the final image by consulting the image of a pinhole camera.
-It is also commonly referred to as \textit{reverse-mapped z-buffer \gls{dof}}.\cite{Gilham.2007}
+It is also commonly referred to as \textit{reverse-mapped z-buffer \gls{dof}} \cite{Gilham.2007}.
 
 The simplest implementation of this approach is achieved by generating a mip-map of the rendered screen texture.
 Then the \gls{coc} is calculated for each pixel and is used to perform trilinear interpolation to find the final color value.
 To access the depth buffer was an issue in early graphics APIs and early GPUs and had to be manually created.
 However since the introduction of OpenGL 2.0 and DirectX 9 and their compatible hardware, access to depth buffer information is widely supported.
 As this process is easily parallelized per pixel and has hardware support on modern GPUs, it is very performant on modern graphics hardware.
-However the simple implementation generates multiple objectionable visual artefacts, that make the simple implementation unsuitable for most applications.\cite{Demers.2005, Hammon.2008}
+However the simple implementation generates multiple objectionable visual artefacts, that make the simple implementation unsuitable for most applications \cite{Demers.2005, Hammon.2008}.
 
 The worst artifact is caused by the single depth lookup per pixel.
 In the case of a real camera system, objects and by extension their outline are blurred.
@@ -95,7 +86,7 @@ A point at the edge of an out of focus object will spread out over the focused b
 This causes a smooth transition from blurry objects in the foreground to the focused objects.
 Taking a single depth look up per pixel will only blur the image section of the object and not the entire object.
 As such a hard boundary between the foreground and the focused part of the image will appear in the final image.
-This artifact can be seen in figure \ref{fig:depth-discontinuity}.\cite{Demers.2005}
+This artifact can be seen in figure \ref{fig:depth-discontinuity} \cite{Demers.2005}.
 
 %\begin{wrapfigure}{R}{0.5\linewidth}
 %\begin{center}
@@ -135,7 +126,7 @@ These causes a stair-stepped pattern to appear in blurred objects and can be see
 To alleviate these artifacts a different downsampling method may be used.
 Another option is to apply a Gaussian blur to the downsampled images to simulate a more realistic blur.
 Different kernels may be chosen to simulate a particular \gls{psf}.
-However for optimal performance a separable kernel should be used.\cite{Demers.2005, Gilham.2007}
+However for optimal performance a separable kernel should be used \cite{Demers.2005, Gilham.2007}.
 
 %\begin{wrapfigure}{R}{0.5\linewidth}
 %\begin{center}
@@ -155,7 +146,7 @@ However for optimal performance a separable kernel should be used.\cite{Demers.2
 The final artefact created by this approach is also caused at the border between foreground and in focus objects.
 As the image of blurred objects is blurred indiscriminately, the blurring process will also use color information of in focus areas.
 As such focused image areas will spread into blurred areas, as seen in figure \ref{fig:pxl-bleeeding}.
-This artefact is called \textit{intensity-} or \textit{pixel-bleeding}.\cite{Demers.2005}
+This artefact is called \textit{intensity-} or \textit{pixel-bleeding} \cite{Demers.2005}.
 One approach to reduce these artefacts proposed by Lee et al. \cite{Lee.2009} is the use of an \textit{anisotropic mipmapping} scheme to preclude the effects of adjacent pixel.
 
 \begin{figure}[h]
@@ -170,7 +161,7 @@ Multi-layer approaches have been developed to address the problem of intensity l
 In multi-layer approaches the rendered pin-hole image is first decomposed into several sub-images each representing a layer in the scene.
 The layers are then separately blurred and recombined at the end.
 How the image is separated and how the sub-images are combined are the main points of difference between different methods.
-In the following we will present a method presented by Kraus and Strengert \cite{Kraus.2007}, which builds upon a method presented by Barsky et al.\cite{BrianA.Barsky.2005}
+In the following we will present a method presented by Kraus and Strengert \cite{Kraus.2007}, which builds upon a method presented by Barsky et al. \cite{BrianA.Barsky.2005}.
 
 First a normal pinhole image with according depth information is rendered and stored as textures.
 This image is then split into multiple sub-images denoted by $I^{(i)}$.
@@ -188,8 +179,11 @@ In the next step the discarded foreground pixel of each layers are disoccluded.
 This step is mostly done to alleviate the problem of intensity leakage.
 A method of GPU-based pyramidal interpolation presented by Strengert et al. \cite{Strengert.2006} is used to interpolate color and depth information across discarded pixel.
 To generate information for the missing pixel, first the available pixel and their alpha values are averaged onto a texture with half resolution in both dimensions, similar to the generation of mip-maps.
-Is the synthesis step of this method, each layer is searched for pixel with missing color information (i.e. with alpha value of 0), is given the color of the layer directly above.
+This is done until a 1x1 resolution is reached.
+In the synthesis step of this method, each layer is searched for pixel with missing color information (i.e. with alpha value of 0).
+Any such pixel found is given the color of the layer directly above.
 This is repeated until the bottom layer is reached, where all RGB-components are divided by their alpha value to get their final color.
+A schematic representation of this process is seen in figure \ref{fig:pyramidal-interpolation}.
 This offers up new color information for the blurring step and prevents the pixel-bleeding artefacts of caused by closer layers as seen in figure \ref{fig:pxl-bleeeding}.
 
 \begin{figure}[h]
@@ -201,9 +195,9 @@ This offers up new color information for the blurring step and prevents the pixe
 
 The main difficulty of multi-layer approaches lies in hiding the boarders between individual layers.
 To address this issue, this method "matts" each layer $I^{(i)}$ using a piecewise linear function $\omega^{(i)}(z)$ seen in figure \ref{fig:matt-func}.
-Each color component is multiplied by $\omega^{(i)}(z)$.
+The color and the alpha components are multiplied by $\omega^{(i)}(z)$.
 Thus $\omega^{(i)}(z)$ can be viewed as a weighting function between layers and contributes to a smooth transition between layers in the final blending.
-This step must be done before the blurring of individual layers to ensure the blurring step does not use color information of layers further back.\cite{Kraus.2007}
+This step must be done before the blurring of individual layers to ensure the blurring step does not use color information of layers further back \cite{Kraus.2007}.
 
 \begin{wrapfigure}{R}{0.5\linewidth}
 \begin{center}
@@ -222,11 +216,11 @@ Kraus et al. propose the use of a scaled blur radius of
     r^{(i)}_{pix} &= 2.0 \cdot 0.85 \cdot 2^{|i| - 1}
 \end{align}
 to adjust for the increased perceived blurriness created by the influence of the neighboring layers introduced in the matting step.
-Finally the individual sub-images are blended back to front using traditional alpha blending over a buffer initialized to black.\cite{Kraus.2007}
+Finally the individual sub-images are blended back to front using traditional alpha blending over a buffer initialized to black \cite{Kraus.2007}.
 
 This method offers an improvement to image accuracy compared to single-layer methods.
 Especially when considering depth discontinuities and pixel-bleeding as the separation onto sub-layers isolates pixel from pixel with differing depths.
 When considering performance the multi-layer approach requires high memory performance and capacity as each layer and its pyramid of downscaled layers must be stored and modified in parallel.
-This also reveals the main drawback of multi-layer methods, namely their performance scaling with the size of the largest \gls{coc}.
+This also hints at the main drawback of multi-layer methods, namely their performance scaling with the size of the largest \gls{coc}.
 As the radius of \gls{coc} rises, so must the number of layers increase to sustain the image quality.
 This decreases performance at higher \gls{coc} and decreases the usefulness of this approach.

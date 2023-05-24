@@ -39,7 +39,7 @@ This results in the following projection:
     y_c
 \end{pmatrix}
 \end{align}
-The negative sign represents the flipping of the image on the image plane. \cite{Beyerer.2016}
+The negative sign represents the flipping of the image on the image plane \cite{Beyerer.2016}.
 
 In reality this camera model suffers from multiple issues that make pinhole cameras unpractical for photography.
 The most obvious problem is the impossibility to create a infinitesimally small hole.
@@ -47,7 +47,7 @@ As such the hole will always have a real diameter $D$.
 This causes a point on the image plane to receive light from multiple sources and thus negates the theoretically perfect focus of the pinhole camera.
 If one still tries to approach a $D$ of $0$ the light entering the pinhole will also approach $0$.
 The image will become darker or the exposure time needed for a bright image will approach infinity.
-Additionally at such small values of $D$ the assumption of light as a ray will break down and one will notice diffraction start to appear and blurring the image further. \cite{Beyerer.2016}
+Additionally at such small values of $D$ the assumption of light as a ray will break down and one will notice diffraction start to appear and blurring the image further \cite{Beyerer.2016}.
 
 \begin{figure}[h]
     \centering
@@ -64,7 +64,7 @@ The relation between the radius of the lens $R$ and the distance of the focal po
 \begin{align}
     R = 2 F \frac{n_2 - n_1}{n_1}
 \end{align}
-with $n_1$ representing the refractive index of the surrounding material and $n_2$ the refractive index of the lens. \cite{Beyerer.2016}
+with $n_1$ representing the refractive index of the surrounding material and $n_2$ the refractive index of the lens \cite{Beyerer.2016}.
 
 Most lens system are constructed with rotational symmetry with the light entering at small angles $\alpha$ between the light ray and the optical axis.
 As such the approximation $\sin  \alpha \approx \alpha$ holds and we can linearize the law of refraction to
@@ -119,8 +119,15 @@ The blur of optical system can be described by its \gls{psf}.
 It characterizes the spread of a single point source of light onto the image plane and takes into account the many factors that contribute to a blurring of the image.
 This includes, but is not limited to, imperfections in the lens, the shape of the aperture, diffraction effects and spherical and chromatic aberrations.
 The \gls{psf} is typically represented as a two-dimensional function with a Gaussian or disk-like shape.
-When thinking of an optical system as a function $f$ that transform incoming light rays into an image, the \gls{psf} represents its impulse response function.\cite{Beyerer.2016}
+When thinking of an optical system as a function $f$ that transform incoming light rays into an image, the \gls{psf} represents its impulse response function \cite{Beyerer.2016}.
 The ability to define the particular \gls{psf} used is important to simulate particular camera systems accurately.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.6\textwidth]{images/Convolution_Illustrated_eng.png}
+    \caption{Light source convoluted with \gls{psf} \cite{psf}}
+    \label{fig:psf}
+\end{figure}
 
 \section{Sensor}
 In contrast to a virtual camera an image sensor cannot interrogate the color of an object, but must wait for light to hit its light sensors and produce a strong enough image.
@@ -142,7 +149,7 @@ Even though $g_l(\omega, t)$ does not account for transparent or reflective obje
 $L_l(\omega, t)$ simply describes what light is coming from angle $\Omega$ at time $t$ without describing the method how this is achieved. \cite{Navarro.2011}
 For any computer-generated images the renderer must approximate this integral.
 
-The effects of \gls{mb} are often unwanted, especially in photography, and are reduced with lowering the exposure time of the image sensor.
+The effects of motion blur are often unwanted, especially in photography, and are reduced with lowering the exposure time of the image sensor.
 This leaves less time for light to enter the sensor and therefore reduces image brightness.
 To compensate for this either the sensitivity of the sensor (ISO) must be increased or the aperture must be widened to increase the amount of light entering.
 Both options come with trade-offs to image quality.
