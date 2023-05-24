@@ -15,10 +15,10 @@ To simulate a depth-of-field effect the following steps are iterated:
     \item \textbf{Rendering:} An image is created using the traditional rasterization pipeline
     \item \textbf{Accumulation:} The rendered image is added to the accumulation buffer.
 \end{enumerate}
-The jittering of the camera simulates the size of the individual image pixel of a real image sensor.
+The jittering of the camera simulates the size of the aperture of a real image system.
 The images are then averaged to approximate the integration of all light paths hitting a sensor pixel.
-As such out of focus objects will have varying positions in the rendered images and thus are spread out over their \gls{coc} in the final image.
-This method therefore converges on the correct solution and does not suffer from the image artefacts mentioned earlier.
+Consequently, out of focus objects will occupy varying positions in the rendered images and will be diffused over their \gls{coc} in the final image.
+This method therefore converges on the correct solution.
 
 \begin{wrapfigure}{R}{0.4\linewidth}
 \begin{center}
@@ -30,40 +30,50 @@ This method therefore converges on the correct solution and does not suffer from
 
 The specific approach to jittering the camera is subject to the individual implementation, but should move the camera parallel to the image plane.
 Sampling points in a circular area may be used to simulate a circular aperture, but a hexagonal or octagonal sampling shape may be preferred for mechanical apertures.
-Similarly the distribution of points may be adjusted achieve a specific \gls{psf}.
+Further customization can be done by adjusting the distribution of points to achieve a specific \gls{psf}.
 As such this approach great artistic flexibility.
 
 To hide the individual frames a minimum density of samples must be taken to sufficiently cover the biggest \gls{coc} present in the image.
-As such the amount of work needed to get acceptable results scales linearly with the \textbf{area} of the biggest \gls{coc} created by the scene.
+As a result, the amount of work needed to achieve acceptable results scales linearly with the \textbf{area} of the biggest \gls{coc} created by the scene.
 Acceptable results are typically achieved with a single pass per 4 pixel area of the \gls{coc}.
 This still results in 50 passes at a \gls{coc} with a 8 pixel radius \cite{Demers.2005}.
-Thanks to the use of a traditional rasterization pipeline this method is often faster than ray-traced approaches.
-However the high increase in the rendering workload excludes its use in all but the most CPU-bound real-time rendering workloads or as reference images.
+Thanks to the use of a traditional rasterization pipeline, this method is still often faster than ray-traced approaches.
+However the high increase in the rendering workload excludes its use except in the most CPU-bound real-time rendering workloads or for reference images.
 
 \section{Single-Layer approaches}
 To improve on the performance of accumulation buffers, several techniques have been developed, that limit themselves to a single rendering pass.
 In addition to the color information in the frame buffer, all these techniques store the depth of each pixel in a separate z-buffer.
 The main way the following methods differ is in their use of the given data to create the final image.
-Due to the limitation on the information provided, all of the following methods exhibit some artifacts, that are accepted for the higher performance they offer.
+Due to the limitation on the information provided, all of the following methods exhibit some artifacts, that are accepted in exchange for the higher performance they offer.
 
 The single-layer approaches can be categorized into two sub-categories based on the direction of how the final color for each pixel is calculated.
 
 \subsection{Scattering methods}
-The first method to generate depth of field, commonly referred to as \textit{splatting}, or \textit{forward-mapped z-buffer \gls{dof}} was introduced by Potmesil et al \cite{Potmesil.1981}.
-It uses the fact that the image of pinhole camera stores the light intensity for \textbf{most} directions that hit the sensor.
-With the additional information of the depth we can calculate the \gls{coc} of each light ray.
-To efficiently calculate the final color of a pixel, a sprite with the calculated \gls{coc} size is placed at its position.
-The color of the sprite is taken from the original pixel while its alpha value is inversely proportional to the size of the \gls{coc}.
-As with the use of accumulation buffers the shape an color of the sprite can be modified to simulate a specific \gls{psf}.
+The first single-layer method to generate depth of field, commonly referred to as \textit{splatting}, or \textit{forward-mapped z-buffer \gls{dof}} was introduced by Potmesil et al. \cite{Potmesil.1981}.
+It relies on the fact that the image of pinhole camera stores the light intensity for \textbf{most} directions that hit the sensor.
+With the additional information offered by the z-buffer, we can calculate the \gls{coc} of each light ray.
+To efficiently calculate the final color of any pixel, a sprite with the calculated \gls{coc} size is placed at its position.
+The color of the sprite is taken from the pixel in the original image, while its alpha value is inversely proportional to the area of the calculated \gls{coc}.
+Similarly to the accumulation buffer method, the shape and intensity distribution of the sprite can be modified to simulate a specific \gls{psf}.
 The sprite is then placed at the original distance and second rendering pass is used to generate the final image.
 
 The resulting image is a very close approximation of an image generated by the accumulation buffer method.
-The main visual imperfection created by this method is the lack of partial occlusion.
-This is barely noticeable in static scenes, but causes bright objects to suddenly appear when coming into view behind other objects.
-As this method relies on the interaction of transparent sprites, we must each sprite for accurate transparency.
+This method's main visual inaccuracy lies in its inability to simulate partial occlusion.
+In realistic cameras with a real aperture, light may enter the aperture and hit the image sensor, which would not be visible to a pinhole camera.
+This effect is illustrated in figure \ref{fig:partial-occlusion}.
+While this effect is barely noticeable in static scenes, it causes bright objects to suddenly appear when coming into view behind other objects \cite{Demers.2005}.
+
+Additionally, as this method relies on the interaction of transparent sprites, it requires the sorting of each sprite from back to front to ensure accurate transparency.
 This log-linear time complexity in regard to the resolution is the main drawback of this method.
-While real-time application such as video games may not find this performance acceptable, the high quality make it an attractive option for providing previews of renders \cite{Demers.2005}.
-Real-time performance can be achieved when using commutative blending.
+Although the performance may not meet the stringent real-time application requirements of video games, the superior image quality it offers renders it an appealing option for previews of renders.
+However, it's worth noting that real-time performance can be realized when employing commutative blending.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.9\textwidth]{images/partial-occlusion.png}
+    \caption{An object is partially visible through a finite aperture \cite{Barsky.2003b}}
+    \label{fig:partial-occlusion}
+\end{figure}
 
 Lee et al. \cite{Lee.2008} present a modified version of this algorithm that splits the scene into three layers.
 Splatting is done via commutative blending onto three separate layers.
@@ -76,7 +86,7 @@ It is also commonly referred to as \textit{reverse-mapped z-buffer \gls{dof}} \c
 The simplest implementation of this approach is achieved by generating a mip-map of the rendered screen texture.
 Then the \gls{coc} is calculated for each pixel and is used to perform trilinear interpolation to find the final color value.
 To access the depth buffer was an issue in early graphics APIs and early GPUs and had to be manually created.
-However since the introduction of OpenGL 2.0 and DirectX 9 and their compatible hardware, access to depth buffer information is widely supported.
+However since the introduction of OpenGL 2.0 and DirectX 9 and compatible hardware, access to depth buffer information is widely supported.
 As this process is easily parallelized per pixel and has hardware support on modern GPUs, it is very performant on modern graphics hardware.
 However the simple implementation generates multiple objectionable visual artefacts, that make the simple implementation unsuitable for most applications \cite{Demers.2005, Hammon.2008}.
 
@@ -84,9 +94,9 @@ The worst artifact is caused by the single depth lookup per pixel.
 In the case of a real camera system, objects and by extension their outline are blurred.
 A point at the edge of an out of focus object will spread out over the focused background.
 This causes a smooth transition from blurry objects in the foreground to the focused objects.
-Taking a single depth look up per pixel will only blur the image section of the object and not the entire object.
+Taking a single depth lookup per pixel will only blur the image section containing the out of focus object and its outline.
 As such a hard boundary between the foreground and the focused part of the image will appear in the final image.
-This artifact can be seen in figure \ref{fig:depth-discontinuity} \cite{Demers.2005}.
+This artifact can be seen in figure \ref{fig:depth-discontinuity} and is commonly refereed to as a depth discontinuity \cite{Demers.2005}.
 
 %\begin{wrapfigure}{R}{0.5\linewidth}
 %\begin{center}
@@ -106,10 +116,10 @@ This artifact can be seen in figure \ref{fig:depth-discontinuity} \cite{Demers.2
 Hammond \cite{Hammon.2008} presents an approach to resolve this issue and generate a more natural \gls{dof} for foreground objects.
 A full-screen pass that calculates the \gls{coc} for each foreground object is calculated and stored as a texture.
 To calculate the \gls{coc} equation \ref{eq:coc-expanded} may be used, but other options are available for more artistic control.
-Especially in first-person games it is often desirable for the player's weapons or other important objects to always remain in focus.
-To achieve this Hammond Jr. proposes using negative depth values to indicate pixel containing to the view model.
-Pixel in focus or background are assigned a \gls{coc} of zero.
-This texture is first downsampled to one-fourth resolution along both axis for better performance.
+Especially in first-person games it is often desirable for the player's weapons or other important objects to have a different level of \gls{dof}
+To achieve this Hammond Jr. proposes using negative depth values to indicate pixel containing the view model.
+Pixel in focus or sky are assigned a \gls{coc} of zero.
+This depth texture is first downsampled to one-fourth resolution along both axis for better performance.
 The downsampled texture is then blurred using a Gaussian blur to eliminate edges between foreground and focused and background objects.
 The final \gls{coc} value used by this method is given by:
 \begin{align}
@@ -117,15 +127,15 @@ The final \gls{coc} value used by this method is given by:
 \end{align}
 Where $D_0$ represents the downsampled depth-texture and $D_B$ represents the blurred depth-texture for each pixel.
 A final full-screen pass is finally done to apply a variable width blur by interpolating between the original pinhole image and downsampled versions of it.
-Lee et al. \cite{Lee.2009} improves on Hammond's method by using non-linear interpolation during the blurring step.
+Lee et al. \cite{Lee.2009} improve on Hammond's method by using non-linear interpolation during the blurring step.
 However both methods still suffer from the fundamental limitations of this approach.
 As such they both blur object behind transparent foreground objects and struggle with high blur radii.
 
-Another artefact created by simple trilinear filtering are bilinear interpolation artefacts of the magnified layers.
-These causes a stair-stepped pattern to appear in blurred objects and can be seen in figure \ref{fig:trilinear-filtering}.
-To alleviate these artifacts a different downsampling method may be used.
+Another artefact exhibited by image-space techniques are bilinear interpolation artefacts of the magnified layers.
+They are a result of the trilinear filtering used and cause a stair-stepped pattern to appear in blurred objects, as can be seen in figure \ref{fig:trilinear-filtering}.
+To alleviate these artifacts a different downsampling method should be used.
 Another option is to apply a Gaussian blur to the downsampled images to simulate a more realistic blur.
-Different kernels may be chosen to simulate a particular \gls{psf}.
+Again, different kernels may be chosen to simulate a particular \gls{psf}.
 However for optimal performance a separable kernel should be used \cite{Demers.2005, Gilham.2007}.
 
 %\begin{wrapfigure}{R}{0.5\linewidth}
@@ -143,7 +153,7 @@ However for optimal performance a separable kernel should be used \cite{Demers.2
     \label{fig:trilinear-filtering}
 \end{figure}
 
-The final artefact created by this approach is also caused at the border between foreground and in focus objects.
+The final artefact created by these approaches is also caused at the border between foreground and in focus objects.
 As the image of blurred objects is blurred indiscriminately, the blurring process will also use color information of in focus areas.
 As such focused image areas will spread into blurred areas, as seen in figure \ref{fig:pxl-bleeeding}.
 This artefact is called \textit{intensity-} or \textit{pixel-bleeding} \cite{Demers.2005}.
@@ -152,7 +162,7 @@ One approach to reduce these artefacts proposed by Lee et al. \cite{Lee.2009} is
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.5\textwidth]{images/pixel-bleeding.jpg}
-    \caption{Pixel-bleeding artefacts of focused tank \cite{Demers.2005}}
+    \caption{Pixel-bleeding artefacts of in focus tank barrel \cite{Demers.2005}}
     \label{fig:pxl-bleeeding}
 \end{figure}
 
@@ -218,9 +228,10 @@ Kraus et al. propose the use of a scaled blur radius of
 to adjust for the increased perceived blurriness created by the influence of the neighboring layers introduced in the matting step.
 Finally the individual sub-images are blended back to front using traditional alpha blending over a buffer initialized to black \cite{Kraus.2007}.
 
-This method offers an improvement to image accuracy compared to single-layer methods.
-Especially when considering depth discontinuities and pixel-bleeding as the separation onto sub-layers isolates pixel from pixel with differing depths.
-When considering performance the multi-layer approach requires high memory performance and capacity as each layer and its pyramid of downscaled layers must be stored and modified in parallel.
+The presented technique provides enhanced image accuracy over single-layer methods, with particular benefits in addressing depth discontinuities and pixel-bleeding.
+This is achieved through the allocation of individual pixels to sub-layers based on their differing depths, thereby reducing interference between pixels.
+However, it's essential to consider the performance implications of the multi-layer approach, as it necessitates substantial memory performance and capacity.
+This is due to the need for concurrent storage and modification of each layer, along with their corresponding pyramids of downscaled layers.
 This also hints at the main drawback of multi-layer methods, namely their performance scaling with the size of the largest \gls{coc}.
-As the radius of \gls{coc} rises, so must the number of layers increase to sustain the image quality.
-This decreases performance at higher \gls{coc} and decreases the usefulness of this approach.
+As the radius of \gls{coc} expands, the layer count must similarly increase to maintain the image quality.
+Consequently, performance declines with larger CoCs, reducing the overall effectiveness of this technique.
