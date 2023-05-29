@@ -3,7 +3,7 @@
 Most real-time renderers use the simple pinhole camera model to create their images.
 This approach leads to perfect images of the scene at a moment in time.
 However to achieve a more realistic image or an artistic vision these images are to perfect, as they do not express real visual artefacts cameras and human eyes experience.
-\section{Lens systems}
+\section{Lens and aperture}
 \label{ch:background-lens}
 The simplest camera model is the pinhole camera.
 An infinitesimal small hole is punched into an opaque material and creates the aperture.
@@ -43,11 +43,11 @@ The negative sign represents the flipping of the image on the image plane \cite{
 
 In reality this camera model suffers from multiple issues that make pinhole cameras unpractical for photography.
 The most obvious problem is the impossibility to create a infinitesimally small hole.
-As such the hole will always have a real diameter $D$.
+Consequently, the aperture will always have a real diameter $A > 0$.
 This causes a point on the image plane to receive light from multiple sources and thus negates the theoretically perfect focus of the pinhole camera.
-If one still tries to approach a $D$ of $0$ the light entering the pinhole will also approach $0$.
+If one still tries to approach a $A$ of $0$ the light entering the pinhole will also approach $0$.
 The image will become darker or the exposure time needed for a bright image will approach infinity.
-Additionally at such small values of $D$ the assumption of light as a ray will break down and one will notice diffraction start to appear and blurring the image further \cite{Beyerer.2016}.
+Additionally at such small values of $A$ the assumption of light as a ray will break down and one will notice diffraction start to appear and blurring the image further \cite{Beyerer.2016}.
 
 \begin{figure}[h]
     \centering

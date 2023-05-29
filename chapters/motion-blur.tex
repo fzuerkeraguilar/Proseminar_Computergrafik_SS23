@@ -28,6 +28,10 @@ To generated the next image, the first frame is rendered again and subtracted fr
 Then frame $N+1$ is rendered and added to the accumulation buffer.
 With this method a new image is displayed for every two frames rendered \cite{Haeberli.1990}.
 
+%If more memory space and bandwidth are available, one can also choose to keep each image in a separate buffer and overwrite the oldest each rendering pass.
+%The final image is then calculated using blending over all frames.
+%This approach trades off the multiple rendering passes for an increase in memory utilization.
+
 \section{Geometry substitution}
 \label{ch:mb-gs}
 An alternative approach to reduce temporal aliasing by increasing the frame rate involves modifying the underlying geometry to approximate a moving object.

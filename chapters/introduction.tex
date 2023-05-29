@@ -1,3 +1,19 @@
 \chapter{Introduction}
 \label{ch:Introduction}
-The generation of realistic computer generated images has been the subject of research \dots
+The generation of realistic computer generated images has been the subject of research for many years, with various techniques being developed to improve the quality and realism of the generated content.
+Most of these techniques seek to mimic the underlying physical propagation of light found in real life.
+However, the computation of realistic path tracing algorithms is very computationally expensive.
+As such, certain photographic effects, such as depth of field and motion blur, has proven challenging, particularly in real-time environments.
+
+This work explores and evaluates different methods for approximating both \gls{dof} and motion blur in a real-time context.
+We focus on \gls{dof} and motion blur as both effects are frequently seen in film and photography and play an important role in for the artist, but are often not implemented or approximated poorly.
+For example, \gls{dof} can be adjusted to draw attention to a particular subject in a scene, while motion blur can instill a sense of speed and movement to an image.
+Thus, an effective real-time implementation of these effects not only contributes to the realism of the generated image, but also provides developers and artists with better tools for visual storytelling and design.
+
+In the following chapters, we will cover the underlying principals behind both effects.
+We will give an overview of a simple camera model that explains the influence of various aspects of a camera system on the final image.
+After that, we will move on to discuss different approaches to simulating depth of field, including both single-layer and multi-layer approaches.
+Finally, we will examine different motion blur techniques, such as geometry substitution and motion fields.
+
+Through this overview, we hope to provide a comprehensive understanding of various techniques to approximate \gls{dof} and motion blur and the trade-offs brought by each technique.
+As such, we hope that, this work will provide a ground work for improvements in this area.
